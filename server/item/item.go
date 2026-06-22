@@ -3,6 +3,7 @@ package item
 import (
 	"encoding/binary"
 	"image/color"
+	"math/rand/v2"
 	"time"
 
 	"github.com/df-mc/dragonfly/server/block/cube"
@@ -243,6 +244,21 @@ func torsoPosition(e world.Entity) mgl64.Vec3 {
 		pos = pos.Add(mgl64.Vec3{0, torso.TorsoHeight()})
 	}
 	return pos
+}
+
+// projectileSpread is the maximum deviation applied to each axis of a thrown projectile's trajectory. It matches the
+// value vanilla uses for the inaccuracy of projectiles such as snowballs, eggs and arrows.
+const projectileSpread = 0.0172275
+
+// spreadOffset returns a random offset distributed triangularly over the range [-projectileSpread, projectileSpread] on
+// each axis. It is added to the unit direction vector of a thrown projectile before that vector is scaled by its power,
+// so that projectiles do not travel in a perfectly straight line, matching vanilla behaviour.
+func spreadOffset() mgl64.Vec3 {
+	return mgl64.Vec3{
+		projectileSpread * (rand.Float64() - rand.Float64()),
+		projectileSpread * (rand.Float64() - rand.Float64()),
+		projectileSpread * (rand.Float64() - rand.Float64()),
+	}
 }
 
 // Int32FromRGBA converts a color.RGBA into an int32. These int32s are present in things such as signs and dyed leather armour.
